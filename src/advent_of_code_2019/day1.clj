@@ -3,16 +3,25 @@
 
 (def calc-fuel-requirement (comp #(- % 2) int #(Math/floor %) #(/ % 3)))
 
-(defn calc-fuel-requirements [modules-masses] (map calc-fuel-requirement modules-masses))
+(defn calc-module-fuel-requirement-seq [mass]
+  (let [required-fuel (calc-fuel-requirement mass)]
+    (if (pos? required-fuel)
+      (lazy-seq (cons required-fuel (calc-module-fuel-requirement-seq required-fuel)))
+      [])))
 
-(defn calc-total-fuel-requirement [modules-masses]
-  (reduce + 0 (calc-fuel-requirements modules-masses)))
+(defn calc-module-fuel-recursive-sum [module-mass]
+  (reduce + 0 (calc-module-fuel-requirement-seq module-mass)))
+
+(defn calc-total-fuel-requirement [modules-masses module-fuel-calculator]
+  (reduce + 0 (map module-fuel-calculator modules-masses)))
 
 (defn strings-to-ints [strings] (map #(Integer. %) strings))
 
-(defn calculate-fuel-req-from-file [file-path]
+(defn calculate-fuel-req-from-file [file-path module-fuel-calculator]
   (with-open [input (clojure.java.io/reader file-path)]
-    ((comp calc-total-fuel-requirement strings-to-ints) (line-seq input))))
+    ((comp #(calc-total-fuel-requirement % module-fuel-calculator) strings-to-ints) (line-seq input))))
 
 (defn -main [& args]
-  (calculate-fuel-req-from-file (first args)))
+  (let [input-file-path (first args)]
+    (println "Fuel requirements including module mass only:" (calculate-fuel-req-from-file input-file-path calc-fuel-requirement))
+    (println "Fuel requirements including fuel mass:" (calculate-fuel-req-from-file input-file-path calc-module-fuel-recursive-sum))))
