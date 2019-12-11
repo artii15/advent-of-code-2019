@@ -2,6 +2,7 @@
   (:gen-class))
 
 (require '[clojure.string :as str])
+(require '[clojure.math.combinatorics :as combo])
 
 (defn split-code [code-str]
   (str/split code-str #","))
@@ -24,9 +25,33 @@
        1 (recur (execute-operation op-codes current-position +) (+ current-position 4))
        2 (recur (execute-operation op-codes current-position *) (+ current-position 4))))))
 
-(defn read-and-interpret [input]
-  (let [op-codes (map #(Integer. %) (split-code input))]
-    (interpret-program (vec op-codes))))
+(defn file-to-string [file-location] 
+  ((comp str/trim-newline slurp) file-location))
+
+(defn interpret-with-noun-and-verb [codes noun verb]
+  (let [with-noun-changed (assoc codes 1 noun)
+        with-noun-and-verb-changed (assoc with-noun-changed 2 verb)]
+    (interpret-program with-noun-and-verb-changed)))
+
+(defn read-codes-from-file [input-file-path]
+  (let [file-content ((comp str/trim-newline slurp) input-file-path)
+        string-codes (split-code file-content)]
+    (vec (map #(Integer. %) string-codes))))
+
+(defn execute-for-fixed-params [input-file-path]
+  (interpret-with-noun-and-verb (read-codes-from-file input-file-path) 12 2))
+
+(defn interpret-and-ret-first [codes noun verb]
+  (first (interpret-with-noun-and-verb codes noun verb)))
+
+(defn execute-for-changing-params [input-file-path searched-result]
+  (let [nouns (range 0 100)
+        verbs (range 0 100)
+        input-combinations (combo/cartesian-product nouns verbs)
+        codes (read-codes-from-file input-file-path)]
+    (first 
+     (drop-while 
+      (fn [[noun verb]] (not= searched-result (interpret-and-ret-first codes noun verb))) input-combinations))))
 
 (defn -main [& args]
-  (println (read-and-interpret (slurp (first args)))))
+  (println (execute-for-fixed-params (first args))))
