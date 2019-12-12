@@ -43,10 +43,6 @@
         intersections (apply sets/intersection wires-points)]
     intersections))
 
-(defn get-intersections-from-file [file-path]
-  (with-open [reader (clojure.java.io/reader file-path)]
-    (map get-intersections (doall (line-seq reader)))))
-
 (defn abs [value]
   (if (pos? value) value (- value)))
 
@@ -63,6 +59,9 @@
   (let [manhatan-dists (get-manhatan-dists wires-codes-strings)]
     (apply min (filter #(not= % 0) manhatan-dists))))
 
+(defn get-lowest-manhatan-dist-from-file [file-path]
+  (with-open [reader (clojure.java.io/reader file-path)]
+    (get-lowest-manhatan-dist (line-seq reader))))
+
 (comment
-  (get-lowest-manhatan-dist ["R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51" 
-                             "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"]))
+  (get-lowest-manhatan-dist-from-file "/home/artur/Pulpit/day3-input"))
