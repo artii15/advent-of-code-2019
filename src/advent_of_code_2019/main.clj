@@ -8,9 +8,6 @@
   (let [normalized-dir-path (str/replace dir-path #"/$" "")]
     (str/join "/" [normalized-dir-path file-name])))
 
-(comment 
-  (make-file-path "/home/artur" "test"))
-
 (defn -main [& args]
   (let [inputs-directory (first args)
         day1-input (make-file-path inputs-directory "day1-input")
