@@ -31,15 +31,15 @@
   (let [steps-codes (str/split steps-string #",")]
     (apply concat (map read-code steps-codes))))
 
-(def read-route (comp make-points read-steps))
+(def read-points-list (comp make-points read-steps))
 
-(def read-points (comp set read-route))
+(def read-points-set (comp set read-points-list))
 
-(defn get-wires-points [wires-codes-strings]
-  (map read-points wires-codes-strings))
+(defn get-wires-points-set [wires-codes-strings]
+  (map read-points-set wires-codes-strings))
 
 (defn get-intersections [wires-codes-strings]
-  (let [wires-points (get-wires-points wires-codes-strings)
+  (let [wires-points (get-wires-points-set wires-codes-strings)
         intersections (apply sets/intersection wires-points)]
     intersections))
 
@@ -59,9 +59,24 @@
   (let [manhatan-dists (get-manhatan-dists wires-codes-strings)]
     (apply min (filter #(not= % 0) manhatan-dists))))
 
-(defn get-lowest-manhatan-dist-from-file [file-path]
+(defn with-input [file-path operation]
   (with-open [reader (clojure.java.io/reader file-path)]
-    (get-lowest-manhatan-dist (line-seq reader))))
+    (operation (line-seq reader))))
 
-(comment
-  (get-lowest-manhatan-dist-from-file "/home/artur/Pulpit/day3-input"))
+(defn get-lowest-manhatan-dist-from-file [file-path]
+  (with-input file-path get-lowest-manhatan-dist))
+
+(defn get-path-to-point-len [full-path searched-point]
+  (count (take-while #(not= % searched-point) full-path)))
+
+(defn get-paths-to-point-len [full-paths searched-point]
+  (reduce + (map #(get-path-to-point-len % searched-point) full-paths)))
+
+(defn calc-steps-counts-to-reach-intersections [wires-codes-strings]
+  (let [intersections (get-intersections wires-codes-strings)
+        points-lists (map read-points-list wires-codes-strings)]
+    (map #(get-paths-to-point-len points-lists %) intersections)))
+
+(defn calc-shortest-steps-count-to-intersection [wires-codes-strings]
+  (let [counts (calc-steps-counts-to-reach-intersections wires-codes-strings)] 
+    (apply min (filter #(not= % 0) counts))))
