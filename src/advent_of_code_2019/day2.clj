@@ -1,11 +1,6 @@
-(ns advent-of-code-2019.day1
-  (:gen-class))
-
-(require '[clojure.string :as str])
-(require '[clojure.math.combinatorics :as combo])
-
-(defn split-code [code-str]
-  (str/split code-str #","))
+(ns advent-of-code-2019.day2
+  (:require [clojure.string :as str]
+            [clojure.math.combinatorics :as combo]))
 
 (defn execute-operation [op-codes start-position operation]
   (let [arg-1-idx (op-codes (+ start-position 1))
@@ -33,6 +28,9 @@
         with-noun-and-verb-changed (assoc with-noun-changed 2 verb)]
     (interpret-program with-noun-and-verb-changed)))
 
+(defn split-code [code-str]
+  (str/split code-str #","))
+
 (defn read-codes-from-file [input-file-path]
   (let [file-content ((comp str/trim-newline slurp) input-file-path)
         string-codes (split-code file-content)]
@@ -52,6 +50,3 @@
     (first 
      (drop-while 
       (fn [[noun verb]] (not= searched-result (interpret-and-ret-first codes noun verb))) input-combinations))))
-
-(defn -main [& args]
-  (println (execute-for-fixed-params (first args))))

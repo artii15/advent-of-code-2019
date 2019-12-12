@@ -1,5 +1,4 @@
-(ns advent-of-code-2019.day1
-  (:gen-class))
+(ns advent-of-code-2019.day1)
 
 (def calc-fuel-requirement (comp #(- % 2) int #(Math/floor %) #(/ % 3)))
 
@@ -20,8 +19,3 @@
 (defn calculate-fuel-req-from-file [file-path module-fuel-calculator]
   (with-open [input (clojure.java.io/reader file-path)]
     ((comp #(calc-total-fuel-requirement % module-fuel-calculator) strings-to-ints) (line-seq input))))
-
-(defn -main [& args]
-  (let [input-file-path (first args)]
-    (println "Fuel requirements including module mass only:" (calculate-fuel-req-from-file input-file-path calc-fuel-requirement))
-    (println "Fuel requirements including fuel mass:" (calculate-fuel-req-from-file input-file-path calc-module-fuel-recursive-sum))))
