@@ -2,9 +2,9 @@
   (:require [clojure.string :as str]))
 
 (defn read-param-value [memory param mode]
-  (case mode
-    0 (get memory param)
-    1 param))
+  (case (str mode)
+    "0" (get memory param)
+    "1" param))
 
 (defn two-param-compute-op [{memory :memory position :position} params-modes op]
   (let [param-1-mode (nth params-modes 0)
@@ -61,7 +61,7 @@
          params-modes :params-modes} (read-op-code (get memory position))]
     (if (= instruction-code 99) memory
         (let [update-state (get instructions instruction-code)]
-          (update-state program-state params-modes)))))
+          (recur (update-state program-state params-modes))))))
 
 (defn interpret-from-string [program-string]
   (let [string-op-codes (str/split program-string #",")
@@ -72,4 +72,4 @@
       :position 0})))
 
 (comment 
-  (interpret-from-string "1002,4,3,4,99"))
+  (interpret-from-string "1002,4,3,0,99"))
