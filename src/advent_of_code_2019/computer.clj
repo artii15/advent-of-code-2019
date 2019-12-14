@@ -36,11 +36,50 @@
     {:memory memory
      :position (+ position 2)}))
 
+(defn jump-if [{memory :memory position :position} params-modes with-zero-comparator]
+  (let [param-1-mode (nth params-modes 0)
+        param-2-mode (nth params-modes 1)
+        param-1 (get memory (+ position 1))
+        param-2 (get memory (+ position 2))
+        param-1-value (read-param-value memory param-1 param-1-mode)
+        param-2-value (read-param-value memory param-2 param-2-mode)]
+    {:memory memory
+     :position (if (with-zero-comparator param-1-value 0) param-2-value (+ position 3))}))
+
+(defn jump-if-true [program-state params-modes]
+  (jump-if program-state params-modes not=))
+
+(defn jump-if-false [program-state params-modes] 
+  (jump-if program-state params-modes =))
+
+(defn bool-to-int [bool-val]
+  (if bool-val 1 0))
+(defn compare-and-store [{memory :memory position :position} params-modes comparator]
+  (let [param-1-mode (nth params-modes 0)
+        param-2-mode (nth params-modes 1)
+        param-1 (get memory (+ position 1))
+        param-2 (get memory (+ position 2))
+        param-1-value (read-param-value memory param-1 param-1-mode)
+        param-2-value (read-param-value memory param-2 param-2-mode)
+        result-pos (get memory (+ position 3))]
+    {:memory (assoc memory result-pos (bool-to-int (comparator param-1-value param-2-value)))
+     :position (+ position 4)}))
+
+(defn less-than [program-state params-modes]
+  (compare-and-store program-state params-modes <))
+
+(defn equals [program-state params-modes]
+  (compare-and-store program-state params-modes =))
+
 (def instructions 
   {1 add
    2 multiply
    3 write-input
-   4 print-mem})
+   4 print-mem
+   5 jump-if-true
+   6 jump-if-false
+   7 less-than
+   8 equals})
 
 (def instruction-length 2)
 
@@ -70,6 +109,3 @@
     (interpret-program 
      {:memory (zipmap op-codes-indices int-op-codes)
       :position 0})))
-
-(comment 
-  (interpret-from-string "1002,4,3,0,99"))
