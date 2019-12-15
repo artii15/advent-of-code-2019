@@ -10,4 +10,4 @@
 (defn -main [& args]
   (let [inputs-directory (first args)
         day5-input (make-file-path inputs-directory "day5-input")]
-    (day5/part-1 day5-input)))
+    (day5/execute day5-input)))
