@@ -54,8 +54,3 @@
     (fn [lines]
       (let [predecessors-map (lines-to-predecessors-map lines)]
         (count (orbital-transfers predecessors-map "SAN" "YOU"))))))
-
-(comment 
-  (common-predecessors {:a :b :b :c :d :b} :a :d)
-  (part-1 "/home/artur/Pulpit/advent-inputs/day6-input")
-  (part-2 "/home/artur/Pulpit/advent-inputs/day6-input"))
