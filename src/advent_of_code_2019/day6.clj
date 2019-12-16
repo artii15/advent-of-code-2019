@@ -29,5 +29,33 @@
       (let [predecessors-map (lines-to-predecessors-map lines)]
         (total-number-of-orbits predecessors-map)))))
 
+(defn common-predecessors [predecessors-map node-1 node-2]
+  (let [node-1-predecessors (node-predecessors predecessors-map node-1)
+        node-2-predecessors (node-predecessors predecessors-map node-2)
+        node-2-predecessors-set (set node-2-predecessors)]
+    (drop-while #((comp not contains?) node-2-predecessors-set %) node-1-predecessors)))
+
+(defn common-root [predecessors-map node-1 node-2]
+  (first (common-predecessors predecessors-map node-1 node-2)))
+
+(defn path-to-predecessor [predecessors searched-predecessor]
+  (take-while #(not= searched-predecessor %) predecessors))
+
+(defn orbital-transfers [predecessors-map node-1 node-2]
+  (let [node-1-predecessors (node-predecessors predecessors-map node-1)
+        node-2-predecessors (node-predecessors predecessors-map node-2)
+        root (common-root predecessors-map node-1 node-2)
+        from-node-1-to-root (path-to-predecessor node-1-predecessors root)
+        from-node-2-to-root (path-to-predecessor node-2-predecessors root)]
+    (concat from-node-1-to-root from-node-2-to-root)))
+
+(defn part-2 [file-path]
+  (files/with-file-lines file-path
+    (fn [lines]
+      (let [predecessors-map (lines-to-predecessors-map lines)]
+        (count (orbital-transfers predecessors-map "SAN" "YOU"))))))
+
 (comment 
-  (part-1 "/home/artur/Pulpit/advent-inputs/day6-input"))
+  (common-predecessors {:a :b :b :c :d :b} :a :d)
+  (part-1 "/home/artur/Pulpit/advent-inputs/day6-input")
+  (part-2 "/home/artur/Pulpit/advent-inputs/day6-input"))
