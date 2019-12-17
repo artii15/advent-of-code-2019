@@ -111,15 +111,20 @@
   (let [final-state (interpret-and-get-state program-state)]
     (get final-state :memory)))
 
-(defn interpret-from-string-and-get-state [program-string]
+(defn initialize-state-from-string [program-string]
   (let [string-op-codes (str/split program-string #",")
         int-op-codes (map #(Integer. %) string-op-codes)
         op-codes-indices (range 0 (count int-op-codes))]
-    (interpret-and-get-state
      {:memory (zipmap op-codes-indices int-op-codes)
       :position 0
-      :stdout []})))
+      :stdout []}))
+
+(defn interpret-from-string-and-get-state [program-string]
+  (interpret-and-get-state (initialize-state-from-string program-string)))
 
 (defn interpret-from-string [program-string]
   (let [final-state (interpret-from-string-and-get-state program-string)]
     (get final-state :memory)))
+
+(defn halted? [{memory :memory position :position}]
+  (= (read-op-code (get memory position)) 99))
