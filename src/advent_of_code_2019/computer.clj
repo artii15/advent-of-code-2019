@@ -38,7 +38,6 @@
   (let [param-mode (first params-modes)
         param (get memory (+ position 1))
         param-value (read-param-value memory param param-mode)]
-    (println param-value)
     {:memory memory
      :position (+ position 2)
      :stdout (conj stdout param-value)
@@ -139,16 +138,19 @@
     (get final-state :memory)))
 
 (defn halted? [{memory :memory position :position}]
-  (= (read-op-code (get memory position)) 99))
+  (== (read-op-code (get memory position)) 99))
 
 (defn waits-for-input? [{memory :memory position :position stdin :stdin}]
-  (and (empty? stdin) 
-       (= (read-op-code (get memory position)) 3)))
+  (and (nil? (peek stdin)) 
+       (== (read-op-code (get memory position)) 3)))
 
 (defn get-output [program-state]
   (let [stdout (get program-state :stdout)]
-    {:output (peek stdout) 
-     :new-program-state (assoc program-state :stdout (pop stdout))}))
+    (peek stdout)))
+
+(defn discard-output [program-state]
+  (let [stdout (get program-state :stdout)]
+    (assoc program-state :stdout (pop stdout))))
 
 (defn add-input [program-state input-value]
   (let [stdin (get program-state :stdin)]
