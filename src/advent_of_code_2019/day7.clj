@@ -36,7 +36,7 @@
 (defn run-loop
   ([amplifiers] (run-loop amplifiers 0))
   ([amplifiers signal]
-   (if (computer/halted? (peek amplifiers)) 
+   (if (= (get (get (peek amplifiers) :memory) (get (peek amplifiers) :position)) 99) 
      signal
      (let [amplifiers-after-phase-run (run-phase amplifiers signal)
            updated-last-amplifier (computer/discard-output (peek amplifiers-after-phase-run))
@@ -57,11 +57,10 @@
 (defn part-2 [file-path]
   (let [code (files/file-to-string file-path)
         amplifier-program (computer/initialize-state-from-string code)
-        ; phase-settings-combos (generate-possible-phase-settings 5 9)
-        ; all-amplifiers-seqs-set (map #(generate-amplifiers amplifier-program %) phase-settings-combos)
-  ]
-        ; loops-processing-results (map run-loop all-amplifiers-seqs-set)]
-    (run-loop (generate-amplifiers amplifier-program [5 6 7 8 9]))))
+        phase-settings-combos (generate-possible-phase-settings 5 9)
+        all-amplifiers-seqs-set (map #(generate-amplifiers amplifier-program %) phase-settings-combos)
+        loops-processing-results (map run-loop all-amplifiers-seqs-set)]
+    (apply max loops-processing-results)))
 
 (comment
   (part-1 "/home/artur/Pulpit/advent-inputs/day7-input")
